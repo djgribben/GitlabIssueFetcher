@@ -1,7 +1,7 @@
 [project]
 name = "gitlabissuefetcher"
 version = "0.1.0"
-description = "Add your description here"
+description = "CLI tool to fetch and interactively select open GitLab issues assigned to a user"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [

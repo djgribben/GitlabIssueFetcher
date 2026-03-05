@@ -1,41 +1,41 @@
 import questionary
-
-from rich.table import Table
 from rich.console import Console
+from rich.table import Table
 
 console = Console()
 
-def print_tables(data: list, group_by: str):
-    tables = {}
-    for r in data:
-        p_id = r[group_by]
-        if p_id not in tables:
-            p_name = r["references"]["full"].split("#")[0].split("/")[-1]
-            tables[p_id] = Table(title=f"{p_name} issues")
-            tables[p_id].add_column("Title", justify="center")
-            tables[p_id].add_column("Description", justify="center")
-            tables[p_id].add_column("URL", justify="center")
+_GROUP_BY = "project_id"
 
-        tables[p_id].add_row(r["title"], r["description"], r["web_url"])
 
-    for table in tables.values():
+def _project_name(issue: dict) -> str:
+    return issue["references"]["full"].split("#")[0].split("/")[-1]
+
+
+def _group_issues(data: list[dict]) -> dict[int, tuple[str, list[dict]]]:
+    projects: dict[int, tuple[str, list[dict]]] = {}
+    for issue in data:
+        p_id = issue[_GROUP_BY]
+        if p_id not in projects:
+            projects[p_id] = (_project_name(issue), [])
+        projects[p_id][1].append(issue)
+    return projects
+
+
+def print_tables(data: list[dict]) -> None:
+    for p_name, issues in _group_issues(data).values():
+        table = Table(title=f"{p_name} issues")
+        table.add_column("Title", justify="center")
+        table.add_column("Description", justify="center")
+        table.add_column("URL", justify="center")
+        for issue in issues:
+            table.add_row(issue["title"], issue["description"] or "", issue["web_url"])
         console.print(table)
 
-def select_issues(data: list, group_by: str):
-    projects = {}
-    for r in data:
-        p_id = r[group_by]
-        p_name = r["references"]["full"].split("#")[0].split("/")[-1]
-        if p_id not in projects:
-            projects[p_id] = []
 
-        projects[p_id].append((f'{p_name}: {r["title"]}', r['web_url']))
-    choices = []
-    for project in projects.values():
-        choices.extend([questionary.Choice(title=issue[0], value=issue[1]) for issue in project])
-    print(choices)
-    return questionary.checkbox(
-        "Select issues:",
-        choices = choices,
-        ).ask()
-
+def select_issues(data: list[dict]) -> list[str] | None:
+    choices = [
+        questionary.Choice(title=f"{p_name}: {issue['title']}", value=issue["web_url"])
+        for p_name, issues in _group_issues(data).values()
+        for issue in issues
+    ]
+    return questionary.checkbox("Select issues:", choices=choices).ask()
