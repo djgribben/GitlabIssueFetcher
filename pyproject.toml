@@ -1,0 +1,18 @@
+[project]
+name = "gitlabissuefetcher"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "httpx>=0.28.1",
+    "questionary>=2.1.1",
+    "rich>=14.3.3",
+    "typer>=0.24.1",
+]
+
+[project.scripts]
+gitlab-planner = "gitlab_issue_fetcher.app.main:app"
+
+[tool.setuptools.packages.find]
+where = ["src"]

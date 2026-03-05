@@ -1,0 +1,15 @@
+# Secrets
+.env
+
+# Virtual environments
+.venv/
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+
+# Editable install metadata
+*.egg-info/
+
+# OS noise
+.DS_Store
